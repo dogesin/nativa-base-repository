@@ -1,0 +1,32 @@
+[project]
+name = "natvo-backend"
+version = "0.1.0"
+description = "Natvo API — FastAPI with DDD + Clean Architecture"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]",
+    "uvicorn[standard]",
+    "sqlalchemy[asyncio]",
+    "psycopg2-binary",
+    "alembic",
+    "pydantic-settings",
+    "python-jose[cryptography]",
+    "passlib[bcrypt]",
+    "stripe",
+    "python-multipart",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+    "factory-boy",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*", "tests*"]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
