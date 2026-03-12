@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   frontend:
-    container_name: habitables_frontend
+    container_name: frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
@@ -10,17 +10,17 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/app:delegated
-      - habitables_frontend_node_modules:/app/node_modules
-      - habitables_frontend_next:/app/.next
+      - frontend_node_modules:/app/node_modules
+      - frontend_next:/app/.next
     environment:
       - NODE_ENV=development
     user: "0:0"
     command: sh -c "npm install && npm run dev"
     networks:
-      - habitables_network
+      - network
 
   backend:
-    container_name: habitables_backend
+    container_name: backend
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
@@ -36,10 +36,10 @@ services:
         condition: service_healthy
     command: uvicorn main:app --host 0.0.0.0 --reload
     networks:
-      - habitables_network
+      - network
 
   postgres:
-    container_name: habitables_postgres
+    container_name: postgres
     image: postgres:15-alpine
     ports:
       - "5432:5432"
@@ -56,13 +56,13 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - habitables_network
+      - network
 
 networks:
-  habitables_network:
+  network:
     driver: bridge
 
 volumes:
-  habitables_frontend_node_modules:
-  habitables_frontend_next:
+  frontend_node_modules:
+  frontend_next:
   postgres-data:
