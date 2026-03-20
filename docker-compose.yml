@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  frontend:
+    # Nombre del contenedor dinámico
+    container_name: ${FRONTEND_CONTAINER_NAME:-frontend}
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      # Puerto del host dinámico : Puerto interno fijo
+      - "${FRONTEND_PORT:-3000}:3000"
+    volumes:
+      - ./frontend:/app:delegated
+      - frontend_node_modules:/app/node_modules
+      - frontend_next:/app/.next
+    environment:
+      - NODE_ENV=development
+    user: "0:0"
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - network
+
+  backend:
+    container_name: ${BACKEND_CONTAINER_NAME:-natvo-backend}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    working_dir: /app
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend:/app
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - ENVIRONMENT=development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --reload --port 8000
+    networks:
+      - network
+
+  postgres:
+    container_name: ${POSTGRES_CONTAINER_NAME:-postgres}
+    image: postgres:15-alpine
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    env_file:
+      - .env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - network
+
+networks:
+  network:
+    driver: bridge
+
+volumes:
+  frontend_node_modules:
+  frontend_next:
+  postgres-data:
