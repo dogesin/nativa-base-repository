@@ -65,6 +65,6 @@ networks:
     driver: bridge
 
 volumes:
-  frontend_node_modules:
-  frontend_next:
+  habitables_frontend_node_modules:
+  habitables_frontend_next:
   postgres-data:
