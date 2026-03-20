@@ -61,15 +61,72 @@ All environment variables are in the `.env` file at the root of the project.
 
 ```
 habitables/
+├── .devcontainer/         # Dev Container (Daytona/VS Code)
+│   └── devcontainer.json
 ├── frontend/              # Next.js application
 │   ├── Dockerfile.dev
-│   └── ...├── backend/               # FastAPI application
+│   └── ...
+├── backend/               # FastAPI application
 │   ├── Dockerfile.dev
-│   └── ...├── postgres/              # PostgreSQL scripts
-│   └── init.sql├── docker-compose.yml     # Service orchestration
+│   └── ...
+├── postgres/              # PostgreSQL scripts
+│   └── init.sql
+├── docker-compose.yml     # Service orchestration
 ├── .env                   # Environment variables
 └── README.md
 ```
+
+## ☁️ Daytona Sandbox
+
+Para correr el proyecto en un sandbox de Daytona:
+
+1. **Requisitos del sandbox**
+   - El workspace de Daytona ya incluye Docker y Docker Compose; no hace falta instalar nada extra.
+
+2. **Variables de entorno**
+   - En la raíz del repo crea un `.env` (puedes basarte en `.env.example`).
+   - Debe definir: `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` y `DATABASE_URL`.
+   - En `DATABASE_URL` usa el host **`postgres`** (nombre del servicio), no `localhost`:
+     ```bash
+     DATABASE_URL=postgresql://USUARIO:PASSWORD@postgres:5432/NOMBRE_DB
+     ```
+
+3. **Levantar los servicios**
+   ```bash
+   docker compose up
+   ```
+   o en segundo plano:
+   ```bash
+   docker compose up -d
+   ```
+
+4. **URLs**
+   - Frontend: el puerto que Daytona asigne (ej. 3000) o la URL que te dé el sandbox.
+   - Backend/API: puerto 8000 (o el que indique Daytona).
+   - Docs: `http://<host>:8000/docs`.
+
+Si el sandbox expone puertos de forma distinta, revisa la documentación de Daytona para ver las URLs públicas de tu workspace.
+
+### Ejecutar `docker compose up` automáticamente en Daytona
+
+Hay dos formas de que el sandbox levante los servicios solo al abrir el workspace:
+
+**Opción 1: Dev Container (recomendada, ya incluida en el repo)**  
+El proyecto incluye `.devcontainer/devcontainer.json` con:
+
+- **Docker-in-Docker**: el workspace tiene Docker y Docker Compose.
+- **postStartCommand**: al iniciar el workspace se ejecuta `docker compose up -d`.
+
+Al crear el workspace en Daytona, elige **Build: Devcontainer**. Daytona usará ese archivo y levantará los contenedores al arrancar.
+
+**Opción 2: Post Start Commands en Daytona**  
+Si no usas Dev Container:
+
+1. Al crear el workspace (o al editar el proyecto en la UI de Daytona), configura **Post start commands**.
+2. Añade: `docker compose up -d`.
+3. Asegúrate de tener un `.env` en la raíz del repo (usa `.env.example` como plantilla).
+
+Así, cada vez que se inicie el workspace se ejecutará ese comando y los servicios quedarán en marcha.
 
 ## 🐛 Troubleshooting
 
